@@ -12,21 +12,23 @@ import dev.langchain4j.model.openai.OpenAiChatModel;
 @Component
 public class DefaultChatModelFactory implements ChatModelFactory {
 
-      private final ChatModel chatModel;
+  private final ChatModel chatModel;
 
-    public DefaultChatModelFactory(LLMProperties properties) {
-             this.chatModel = OpenAiChatModel.builder()
-                .baseUrl(properties.getBaseUrl())
-                .apiKey(properties.getApiKey())
-                .modelName(properties.getModel())
-                .temperature(properties.getTemperature())
-                .timeout(Duration.ofSeconds(properties.getTimeout()))
-                .build();
-    }
+  public DefaultChatModelFactory(LLMProperties properties) {
+    this.chatModel = OpenAiChatModel.builder()
+        .baseUrl(properties.getBaseUrl())
+        .apiKey(properties.getApiKey())
+        .modelName(properties.getModel())
+        .temperature(properties.getTemperature())
+        .logRequests(true)
+        .logResponses(true)
+        .timeout(Duration.ofSeconds(properties.getTimeout()))
+        .build();
+  }
 
-    @Override
-    public ChatModel getChatModel() {
-        return chatModel;
-    }
+  @Override
+  public ChatModel getChatModel() {
+    return chatModel;
+  }
 
 }

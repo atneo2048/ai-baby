@@ -20,9 +20,9 @@ public class ChatController {
     }
 
     @GetMapping("/health")
-    public String health() {
-        return "SQL Agent V2 Running...";
-    }
+public String health() {
+    return "SQL Agent V2 Running...";
+}
 
     @RequestMapping("/chat")
     public ChatResponse chat(@RequestBody ChatRequest request) {

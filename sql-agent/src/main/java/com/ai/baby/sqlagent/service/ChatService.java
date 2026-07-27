@@ -2,21 +2,19 @@ package com.ai.baby.sqlagent.service;
 
 import org.springframework.stereotype.Service;
 
-import com.ai.baby.sqlagent.llm.ChatModelFactory;
-
-import dev.langchain4j.model.chat.ChatModel;
+import com.ai.baby.sqlagent.agent.SqlAgent;
 
 @Service
 public class ChatService {
 
-    private final ChatModel chatModel;
+    private final SqlAgent sqlAgent;
 
-    public ChatService(ChatModelFactory factory) {
-        this.chatModel = factory.getChatModel();
+    public ChatService(SqlAgent sqlAgent) {
+        this.sqlAgent = sqlAgent;
     }
 
     public String chat(String message) {
 
-        return chatModel.chat(message);
+        return sqlAgent.chat(message);
     }
 }
