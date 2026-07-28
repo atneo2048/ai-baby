@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.ai.baby.sqlagent.dto.ChatRequest;
 import com.ai.baby.sqlagent.dto.ChatResponse;
 import com.ai.baby.sqlagent.service.ChatService;
+import com.ai.baby.sqlagent.service.SqlAgentService;
 
 @RestController
 @RequestMapping("/chat")
@@ -15,8 +16,11 @@ public class ChatController {
 
     private final ChatService chatService;
 
-    ChatController(ChatService chatService) {
+    private final SqlAgentService sqlAgentService;
+
+    ChatController(ChatService chatService, SqlAgentService sqlAgentService) {
         this.chatService = chatService;
+        this.sqlAgentService = sqlAgentService;
     }
 
     @GetMapping("/health")
@@ -25,8 +29,8 @@ public String health() {
 }
 
     @RequestMapping("/chat")
-    public ChatResponse chat(@RequestBody ChatRequest request) {
-        String answer = chatService.chat(request.getMessage());
+    public ChatResponse chat(@RequestBody ChatRequest request) throws Exception {
+        String answer = sqlAgentService.ask(request.getMessage());
         return new ChatResponse(answer);
     }
 }
