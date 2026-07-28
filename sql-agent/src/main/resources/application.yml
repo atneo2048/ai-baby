@@ -1,0 +1,28 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: sql-agent
+
+  datasource:
+    url: jdbc:mysql://127.0.0.1:2881/ai_baby?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai&useSSL=false&allowMultiQueries=true&rewriteBatchedStatements=true
+    username: root
+    password: 123456
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+logging:
+  level:
+    root: INFO
+    com.ai.baby.sqlagent: DEBUG
+    dev.langchain4j: DEBUG
+    dev.langchain4j.service: DEBUG
+    # dev.langchain4j.model.openai: TRACE
+
+llm:
+  provider: qwen
+  base-url: ${QWEN_BASE_URL}
+  api-key: ${QWEN_API_KEY}
+  model: qwen-plus
+  temperature: 0.0
+  timeout: 60

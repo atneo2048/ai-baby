@@ -5,5 +5,5 @@ spring:
     password: 123456
     driver-class-name: com.mysql.cj.jdbc.Driver
 nlp:
-  api-key: sk-ws-H.RXLDEDR.1F8w.MEQCIF89aNIXmwqmcGsn__9h4ByqGx6DcBuStoaJPLtGK0BjAiBSSLqkuVRr8FrZk5J93O9S060D9R78ZBaobaIXfLPkJQ
-  url: https://ws-4pen9k08h2xt0ui0.cn-beijing.maas.aliyuncs.com/compatible-mode/v1/chat/completions
+  api-key: ${QWEN_API_KEY}
+  url: ${QWEN_BASE_URL}
