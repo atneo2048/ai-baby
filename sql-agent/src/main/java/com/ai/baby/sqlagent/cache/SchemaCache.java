@@ -1,5 +1,7 @@
 package com.ai.baby.sqlagent.cache;
 
+import java.util.List;
+
 import org.springframework.stereotype.Component;
 
 import com.ai.baby.sqlagent.domain.SchemaInfo;
@@ -7,22 +9,22 @@ import com.ai.baby.sqlagent.domain.SchemaInfo;
 @Component
 public class SchemaCache {
 
-    private SchemaInfo schemaInfo;
+    private List<SchemaInfo> schemaList;
 
     /**
      * 获取缓存
      */
-    public SchemaInfo get() {
+    public List<SchemaInfo> get() {
 
-        return schemaInfo;
+        return schemaList;
     }
 
     /**
      * 更新缓存
      */
-    public void put(SchemaInfo schemaInfo) {
+    public void put(List<SchemaInfo> schemaList) {
 
-        this.schemaInfo = schemaInfo;
+        this.schemaList = schemaList;
     }
 
     /**
@@ -30,7 +32,7 @@ public class SchemaCache {
      */
     public boolean exists() {
 
-        return schemaInfo != null;
+        return schemaList != null;
     }
 
     /**
@@ -38,6 +40,6 @@ public class SchemaCache {
      */
     public void clear() {
 
-        schemaInfo = null;
+        schemaList = null;
     }
 }

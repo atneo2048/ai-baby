@@ -1,6 +1,6 @@
 package com.ai.baby.sqlagent.domain;
 
-import java.time.LocalDateTime;
+import java.util.List;
 
 import lombok.Builder;
 import lombok.Data;
@@ -10,13 +10,17 @@ import lombok.Data;
 public class SchemaInfo {
 
     /**
-     * 数据库结构文本
+     * 表名
      */
-    private String schema;
-
+    private String tableName;
 
     /**
-     * 更新时间
+     * 表描述
      */
-    private LocalDateTime timestamp;
+    private String comment;
+
+    /**
+     * 字段列表
+     */
+    private List<ColumnInfo> columns;
 }

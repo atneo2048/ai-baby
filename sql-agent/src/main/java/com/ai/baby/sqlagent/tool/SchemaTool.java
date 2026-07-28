@@ -2,6 +2,7 @@ package com.ai.baby.sqlagent.tool;
 
 import java.sql.ResultSet;
 import java.time.LocalDateTime;
+import java.util.List;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
@@ -20,12 +21,10 @@ import lombok.extern.slf4j.Slf4j;
 @Component
 public class SchemaTool {
 
-    private final DataSource dataSource;
     private final SchemaCache schemaCache;
     private final SchemaService schemaService;
 
-    public SchemaTool(DataSource dataSource, SchemaCache schemaCache, SchemaService schemaService) {
-        this.dataSource = dataSource;
+    public SchemaTool(SchemaCache schemaCache, SchemaService schemaService) {
         this.schemaCache = schemaCache;
         this.schemaService = schemaService;
     }
@@ -42,24 +41,21 @@ public class SchemaTool {
             生成SQL之前，
             必须首先调用该工具。
             """)
-    public String getSchema() throws Exception {
+    public List<SchemaInfo> loadSchemaList() throws Exception {
 
         log.info("获取数据库结构");
         // 1. 查询缓存
         if (schemaCache.exists()) {
             return schemaCache
-                    .get()
-                    .getSchema();
+                    .get();
         }
 
         // 2、查询数据库结构
-        String schema = schemaService.loadSchema();
+        List<SchemaInfo> schemaList = schemaService.loadSchemaList();
         
         // 3、缓存结果
-        schemaCache.put(
-                SchemaInfo.builder()
-                        .schema(schema)
-                        .timestamp(LocalDateTime.now()).build());
-        return schema;
+        schemaCache.put(schemaList);
+        
+        return schemaList;
     }
 }

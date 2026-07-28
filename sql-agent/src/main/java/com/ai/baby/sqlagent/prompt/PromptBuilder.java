@@ -1,18 +1,8 @@
 package com.ai.baby.sqlagent.prompt;
 
-import org.springframework.stereotype.Component;
+import com.ai.baby.sqlagent.domain.AgentContext;
 
-@Component
-public class PromptBuilder {
+public interface PromptBuilder {
 
-    public String build(PromptContext context) {
-
-        return String.format(
-                PromptTemplate.SQL_AGENT,
-                context.getSchema(),
-                context.getSecurityRule(),
-                context.getExamples(),
-                context.getQuestion()
-        );
-    }
+        String build(AgentContext context);
 }

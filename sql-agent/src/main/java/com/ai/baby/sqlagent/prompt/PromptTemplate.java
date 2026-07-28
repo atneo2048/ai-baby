@@ -10,9 +10,7 @@ public class PromptTemplate {
             数据库结构：
             %s
             安全规则：
-            %s
             参考示例：
-            %s
             要求：
             1. 查询数据库前必须获取Schema
             2. 只能生成SELECT

@@ -17,7 +17,7 @@ logging:
     com.ai.baby.sqlagent: DEBUG
     dev.langchain4j: DEBUG
     dev.langchain4j.service: DEBUG
-    dev.langchain4j.model.openai: TRACE
+    # dev.langchain4j.model.openai: TRACE
 
 llm:
   provider: qwen

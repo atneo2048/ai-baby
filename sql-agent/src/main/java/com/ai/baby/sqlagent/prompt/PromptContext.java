@@ -1,5 +1,9 @@
 package com.ai.baby.sqlagent.prompt;
 
+import java.util.List;
+
+import com.ai.baby.sqlagent.domain.SchemaInfo;
+
 import lombok.Data;
 
 @Data
@@ -14,7 +18,7 @@ public class PromptContext {
     /**
      * 数据库Schema
      */
-    private String schema;
+    private List<SchemaInfo> schemaList;
 
 
     /**

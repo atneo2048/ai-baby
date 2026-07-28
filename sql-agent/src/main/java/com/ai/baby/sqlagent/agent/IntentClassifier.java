@@ -1,5 +1,7 @@
 package com.ai.baby.sqlagent.agent;
 
+import com.ai.baby.sqlagent.domain.IntentResult;
+
 import dev.langchain4j.service.SystemMessage;
 
 public interface IntentClassifier {
@@ -21,6 +23,6 @@ public interface IntentClassifier {
       不要输出Markdown。
       不要解释。
       """)
-  String classify(String question);
+  IntentResult classify(String question);
 
 }

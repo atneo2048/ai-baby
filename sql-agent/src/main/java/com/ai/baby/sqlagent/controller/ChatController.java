@@ -30,7 +30,7 @@ public String health() {
 
     @RequestMapping("/chat")
     public ChatResponse chat(@RequestBody ChatRequest request) throws Exception {
-        String answer = sqlAgentService.ask(request.getMessage());
+        Object answer = sqlAgentService.ask(request.getMessage());
         return new ChatResponse(answer);
     }
 }

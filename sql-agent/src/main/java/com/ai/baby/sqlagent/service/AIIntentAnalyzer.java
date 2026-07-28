@@ -5,7 +5,6 @@ import org.springframework.stereotype.Service;
 import com.ai.baby.sqlagent.agent.IntentClassifier;
 import com.ai.baby.sqlagent.domain.IntentResult;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -14,7 +13,6 @@ import lombok.extern.slf4j.Slf4j;
 public class AIIntentAnalyzer {
 
     private final IntentClassifier classifier;
-    private final ObjectMapper mapper = new ObjectMapper();
 
     public AIIntentAnalyzer(IntentClassifier classifier) {
         this.classifier = classifier;
@@ -22,12 +20,10 @@ public class AIIntentAnalyzer {
 
     public IntentResult analyze(String question) throws JsonProcessingException {
 
-        String result = classifier.classify(question);
+        IntentResult result = classifier.classify(question);
 
         log.info("AI意图分析器结果: {}", result);
-        IntentResult intentResult = mapper.readValue(result, IntentResult.class);
-        intentResult.setQuestion(question);
-        return intentResult;
-
+        result.setQuestion(question);
+        return result;
     }
 }

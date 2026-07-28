@@ -7,5 +7,5 @@ import lombok.Data;
 @AllArgsConstructor
 public class ChatResponse {
 
-    private String answer;
+    private Object answer;
 }
