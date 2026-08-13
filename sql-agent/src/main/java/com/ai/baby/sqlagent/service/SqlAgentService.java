@@ -4,7 +4,6 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 
-import com.ai.baby.sqlagent.agent.SqlAgent;
 import com.ai.baby.sqlagent.analyzer.IntentAnalyzer;
 import com.ai.baby.sqlagent.domain.AgentContext;
 import com.ai.baby.sqlagent.domain.IntentResult;
