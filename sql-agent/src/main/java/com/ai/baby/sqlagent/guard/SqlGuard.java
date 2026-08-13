@@ -1,4 +1,4 @@
-package com.ai.baby.sqlagent.security;
+package com.ai.baby.sqlagent.guard;
 
 import org.springframework.stereotype.Component;
 
@@ -9,8 +9,6 @@ import net.sf.jsqlparser.statement.select.Select;
 
 @Component
 public class SqlGuard {
-
-    private static final int MAX_ROWS = 100;
 
     public void check(String sql) {
         if (sql == null || sql.isBlank()) {

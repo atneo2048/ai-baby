@@ -1,4 +1,4 @@
-package com.ai.baby.sqlagent.service;
+package com.ai.baby.sqlagent.analyzer;
 
 import org.springframework.stereotype.Service;
 

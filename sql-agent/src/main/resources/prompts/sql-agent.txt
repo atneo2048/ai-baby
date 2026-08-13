@@ -20,9 +20,10 @@
 {{question}}
 
 
-请返回JSON:
+请严格返回JSON，不要输出任何其他内容：
 
 {
- "sql":"",
- "reason":""
+  "sql": "SELECT ...",
+  "explanation": "说明为什么生成这条SQL",
+  "risk": "LOW"
 }

@@ -7,30 +7,26 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.ai.baby.sqlagent.dto.ChatRequest;
 import com.ai.baby.sqlagent.dto.ChatResponse;
-import com.ai.baby.sqlagent.service.ChatService;
 import com.ai.baby.sqlagent.service.SqlAgentService;
 
 @RestController
 @RequestMapping("/chat")
 public class ChatController {
 
-    private final ChatService chatService;
-
     private final SqlAgentService sqlAgentService;
 
-    ChatController(ChatService chatService, SqlAgentService sqlAgentService) {
-        this.chatService = chatService;
+    ChatController(SqlAgentService sqlAgentService) {
         this.sqlAgentService = sqlAgentService;
     }
 
     @GetMapping("/health")
-public String health() {
-    return "SQL Agent V2 Running...";
-}
+    public String health() {
+        return "SQL Agent V2 Running...";
+    }
 
     @RequestMapping("/chat")
     public ChatResponse chat(@RequestBody ChatRequest request) throws Exception {
-        Object answer = sqlAgentService.ask(request.getMessage());
+        Object answer = sqlAgentService.generate(request.getMessage());
         return new ChatResponse(answer);
     }
 }

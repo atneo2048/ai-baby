@@ -9,8 +9,6 @@ import com.ai.baby.sqlagent.llm.ChatModelFactory;
 import com.ai.baby.sqlagent.tool.DatabaseTool;
 import com.ai.baby.sqlagent.tool.SchemaTool;
 
-import dev.langchain4j.model.chat.ChatModel;
-import dev.langchain4j.model.openai.OpenAiChatModel;
 import dev.langchain4j.service.AiServices;
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;

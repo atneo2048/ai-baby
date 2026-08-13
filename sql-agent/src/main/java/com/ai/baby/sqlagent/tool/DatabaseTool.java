@@ -3,13 +3,12 @@ package com.ai.baby.sqlagent.tool;
 import java.util.List;
 import java.util.Map;
 
-import java.util.regex.Pattern;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 
 import com.ai.baby.sqlagent.domain.SqlAuditRecord;
+import com.ai.baby.sqlagent.guard.SqlGuard;
 import com.ai.baby.sqlagent.security.SqlAuditService;
-import com.ai.baby.sqlagent.security.SqlGuard;
 
 import dev.langchain4j.agent.tool.Tool;
 
