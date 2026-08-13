@@ -5,7 +5,6 @@ import org.springframework.stereotype.Service;
 import com.ai.baby.sqlagent.agent.SqlAgent;
 import com.ai.baby.sqlagent.domain.AgentContext;
 import com.ai.baby.sqlagent.domain.SqlGenerationResult;
-import com.ai.baby.sqlagent.parser.SqlGenerationResultParser;
 import com.ai.baby.sqlagent.prompt.PromptBuilder;
 
 @Service
@@ -15,16 +14,12 @@ public class DefaultSqlGenerator implements SqlGenerator {
 
     private final PromptBuilder promptBuilder;
 
-    private final SqlGenerationResultParser parser;
-
     public DefaultSqlGenerator(
             SqlAgent sqlAgent,
-            PromptBuilder promptBuilder,
-            SqlGenerationResultParser parser) {
+            PromptBuilder promptBuilder) {
 
         this.sqlAgent = sqlAgent;
         this.promptBuilder = promptBuilder;
-        this.parser = parser;
     }
 
     @Override

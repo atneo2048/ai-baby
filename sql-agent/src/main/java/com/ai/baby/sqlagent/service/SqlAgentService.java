@@ -11,7 +11,6 @@ import com.ai.baby.sqlagent.domain.IntentResult;
 import com.ai.baby.sqlagent.domain.SchemaInfo;
 import com.ai.baby.sqlagent.domain.SqlGenerationResult;
 import com.ai.baby.sqlagent.generator.SqlGenerator;
-import com.ai.baby.sqlagent.prompt.PromptBuilder;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
