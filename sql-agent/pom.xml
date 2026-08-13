@@ -102,11 +102,8 @@
         </dependency>
         
     </dependencies>
-
     <build>
-
         <plugins>
-
             <!-- Spring Boot -->
             <plugin>
                 <groupId>org.springframework.boot</groupId>

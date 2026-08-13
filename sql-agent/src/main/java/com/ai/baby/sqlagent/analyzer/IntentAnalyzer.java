@@ -1,4 +1,4 @@
-package com.ai.baby.sqlagent.service;
+package com.ai.baby.sqlagent.analyzer;
 
 /**
  * 意图分析器

@@ -1,6 +1,8 @@
 package com.ai.baby.sqlagent.agent;
 
+import com.ai.baby.sqlagent.domain.SqlGenerationResult;
+
 public interface SqlAgent {
 
-    String chat(String prompt);
+    SqlGenerationResult generate(String prompt);
 }

@@ -1,12 +1,7 @@
 package com.ai.baby.sqlagent.tool;
 
-import java.sql.ResultSet;
-import java.time.LocalDateTime;
 import java.util.List;
 
-import javax.sql.DataSource;
-import java.sql.Connection;
-import java.sql.DatabaseMetaData;
 import org.springframework.stereotype.Component;
 
 import com.ai.baby.sqlagent.cache.SchemaCache;

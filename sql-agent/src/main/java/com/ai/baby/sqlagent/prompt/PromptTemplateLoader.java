@@ -15,6 +15,7 @@ public class PromptTemplateLoader {
      * @param name Prompt模板名称
      * @return Prompt模板内容
      */
+    @SuppressWarnings("null")
     public String load(String name) {
 
         try {
