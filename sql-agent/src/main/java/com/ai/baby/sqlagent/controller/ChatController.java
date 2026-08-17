@@ -5,8 +5,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.ai.baby.sqlagent.domain.AgentResponse;
 import com.ai.baby.sqlagent.dto.ChatRequest;
-import com.ai.baby.sqlagent.dto.ChatResponse;
 import com.ai.baby.sqlagent.service.SqlAgentService;
 
 @RestController
@@ -25,8 +25,8 @@ public class ChatController {
     }
 
     @RequestMapping("/chat")
-    public ChatResponse chat(@RequestBody ChatRequest request) throws Exception {
-        Object answer = sqlAgentService.generate(request.getMessage());
-        return new ChatResponse(answer);
+    public AgentResponse chat(@RequestBody ChatRequest request) throws Exception {
+        
+        return sqlAgentService.chat(request.getMessage());
     }
 }

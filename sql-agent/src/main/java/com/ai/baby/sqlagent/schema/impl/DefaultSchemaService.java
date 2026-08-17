@@ -1,4 +1,4 @@
-package com.ai.baby.sqlagent.service;
+package com.ai.baby.sqlagent.schema.impl;
 
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
@@ -12,19 +12,37 @@ import org.springframework.stereotype.Service;
 
 import com.ai.baby.sqlagent.domain.ColumnInfo;
 import com.ai.baby.sqlagent.domain.SchemaInfo;
+import com.ai.baby.sqlagent.schema.SchemaCache;
+import com.ai.baby.sqlagent.schema.SchemaPermissionService;
+import com.ai.baby.sqlagent.schema.SchemaService;
+
+import jakarta.annotation.PostConstruct;
+import lombok.AllArgsConstructor;
 
 @Service
-public class SchemaService {
+@AllArgsConstructor
+public class DefaultSchemaService implements SchemaService {
 
     private final DataSource dataSource;
     private final SchemaPermissionService permissionService;
+    private final SchemaCache schemaCache;
 
-    public SchemaService(DataSource dataSource, SchemaPermissionService permissionService) {
-        this.dataSource = dataSource;
-        this.permissionService = permissionService;
+    @PostConstruct
+    public void init() {
+        List<SchemaInfo> schemas = this.loadSchemaList();
+
+        schemaCache.putAll(
+                schemas);
     }
 
+    @Override
     public List<SchemaInfo> loadSchemaList() {
+
+        List<SchemaInfo> schemas = schemaCache.getAll();
+
+        if (!schemas.isEmpty()) {
+            return schemas;
+        }
 
         // 查询数据库metadata
         List<SchemaInfo> schemaList = new ArrayList<>();
@@ -38,13 +56,12 @@ public class SchemaService {
                     new String[] { "TABLE" });
 
             while (tables.next()) {
-                
+
                 String table = tables.getString("TABLE_NAME");
 
                 if (!permissionService.allowTable(table)) {
                     continue;
                 }
-
 
                 ResultSet columns = meta.getColumns(
                         null,
@@ -65,7 +82,7 @@ public class SchemaService {
                             .build();
                     columnList.add(columnInfo);
                 }
-                
+
                 SchemaInfo schemaInfo = SchemaInfo.builder()
                         .tableName(table)
                         .columns(columnList)
@@ -75,6 +92,14 @@ public class SchemaService {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+
+        schemaCache.putAll(schemaList);
+
         return schemaList;
+    }
+
+    @Override
+    public List<SchemaInfo> refresh() {
+        return loadSchemaList();
     }
 }

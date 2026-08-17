@@ -4,14 +4,18 @@ import java.util.List;
 
 import org.springframework.stereotype.Component;
 
-import com.ai.baby.sqlagent.cache.SchemaCache;
 import com.ai.baby.sqlagent.domain.SchemaInfo;
-import com.ai.baby.sqlagent.service.SchemaService;
+import com.ai.baby.sqlagent.schema.SchemaCache;
+import com.ai.baby.sqlagent.schema.SchemaService;
 
 import dev.langchain4j.agent.tool.Tool;
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 
+/**
+ * 数据库Schema工具
+ * 让 LLM 主动调用 Schema 查询能力
+ */
 @Slf4j
 @Component
 public class SchemaTool {
@@ -40,16 +44,15 @@ public class SchemaTool {
 
         log.info("获取数据库结构");
         // 1. 查询缓存
-        if (schemaCache.exists()) {
-            return schemaCache
-                    .get();
+        if (!schemaCache.isEmpty()) {
+            return schemaCache.getAll();
         }
 
         // 2、查询数据库结构
         List<SchemaInfo> schemaList = schemaService.loadSchemaList();
         
         // 3、缓存结果
-        schemaCache.put(schemaList);
+        schemaCache.putAll(schemaList);
         
         return schemaList;
     }
