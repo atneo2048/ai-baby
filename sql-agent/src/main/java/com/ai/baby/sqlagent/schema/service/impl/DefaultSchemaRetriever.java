@@ -1,4 +1,4 @@
-package com.ai.baby.sqlagent.schema.impl;
+package com.ai.baby.sqlagent.schema.service.impl;
 
 
 import java.util.List;
@@ -8,7 +8,8 @@ import org.springframework.stereotype.Service;
 
 import com.ai.baby.sqlagent.domain.SchemaInfo;
 import com.ai.baby.sqlagent.schema.SchemaCache;
-import com.ai.baby.sqlagent.schema.SchemaRetriever;
+import com.ai.baby.sqlagent.schema.service.SchemaRetriever;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 

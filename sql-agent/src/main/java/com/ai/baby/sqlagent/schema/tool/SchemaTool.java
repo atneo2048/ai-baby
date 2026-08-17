@@ -1,4 +1,4 @@
-package com.ai.baby.sqlagent.tool;
+package com.ai.baby.sqlagent.schema.tool;
 
 import java.util.List;
 
@@ -6,7 +6,7 @@ import org.springframework.stereotype.Component;
 
 import com.ai.baby.sqlagent.domain.SchemaInfo;
 import com.ai.baby.sqlagent.schema.SchemaCache;
-import com.ai.baby.sqlagent.schema.SchemaService;
+import com.ai.baby.sqlagent.schema.service.SchemaService;
 
 import dev.langchain4j.agent.tool.Tool;
 import jakarta.annotation.PostConstruct;

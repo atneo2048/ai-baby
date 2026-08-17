@@ -1,4 +1,4 @@
-package com.ai.baby.sqlagent.schema;
+package com.ai.baby.sqlagent.schema.service;
 
 import java.util.List;
 

@@ -22,7 +22,7 @@ import com.ai.baby.sqlagent.exception.SqlBlockedException;
 import com.ai.baby.sqlagent.exception.SqlExecutionException;
 import com.ai.baby.sqlagent.generator.SqlGenerator;
 import com.ai.baby.sqlagent.guard.SqlGuard;
-import com.ai.baby.sqlagent.schema.SchemaRetriever;
+import com.ai.baby.sqlagent.schema.service.SchemaRetriever;
 import com.ai.baby.sqlagent.tool.DatabaseTool;
 
 import lombok.RequiredArgsConstructor;

@@ -1,4 +1,4 @@
-package com.ai.baby.sqlagent.schema.impl;
+package com.ai.baby.sqlagent.schema.service.impl;
 
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
@@ -14,7 +14,7 @@ import com.ai.baby.sqlagent.domain.ColumnInfo;
 import com.ai.baby.sqlagent.domain.SchemaInfo;
 import com.ai.baby.sqlagent.schema.SchemaCache;
 import com.ai.baby.sqlagent.schema.SchemaPermissionService;
-import com.ai.baby.sqlagent.schema.SchemaService;
+import com.ai.baby.sqlagent.schema.service.SchemaService;
 
 import jakarta.annotation.PostConstruct;
 import lombok.AllArgsConstructor;
