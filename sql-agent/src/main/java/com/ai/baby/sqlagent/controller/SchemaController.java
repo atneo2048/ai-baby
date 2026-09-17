@@ -4,7 +4,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.ai.baby.sqlagent.cache.SchemaCache;
+import com.ai.baby.sqlagent.schema.SchemaCache;
+
 
 @RestController
 @RequestMapping("/schema")

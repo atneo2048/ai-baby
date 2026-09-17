@@ -5,5 +5,11 @@ import com.ai.baby.sqlagent.domain.SqlGenerationResult;
 
 public interface SqlGenerator {
 
-    SqlGenerationResult generate(AgentContext context);
+    SqlGenerationResult generate(
+            AgentContext context);
+
+    SqlGenerationResult regenerate(
+            AgentContext context,
+            String previousSql,
+            String error);
 }
