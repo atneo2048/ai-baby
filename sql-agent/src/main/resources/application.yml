@@ -6,9 +6,9 @@ spring:
     name: sql-agent
 
   datasource:
-    url: jdbc:mysql://127.0.0.1:2881/ai_baby?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai&useSSL=false&allowMultiQueries=true&rewriteBatchedStatements=true
-    username: root
-    password: ObTest@2026
+    url: jdbc:mysql://127.0.0.1:3306/ai_baby?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai&useSSL=false&allowMultiQueries=true&rewriteBatchedStatements=true
+    username: ${MYSQL_USER}
+    password: ${MYSQL_PASSWORD}
     driver-class-name: com.mysql.cj.jdbc.Driver
 
 logging:

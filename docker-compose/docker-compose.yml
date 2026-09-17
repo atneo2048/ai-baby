@@ -1,0 +1,46 @@
+services:
+  mysql:
+    image: mysql:8.4.11
+    container_name: mysql
+    restart: unless-stopped
+
+    environment:
+      TZ: Asia/Shanghai
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-appdb}
+      MYSQL_USER: ${MYSQL_USER:-appuser}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+
+    ports:
+      - "${MYSQL_PORT:-3306}:3306"
+
+    volumes:
+      # 核心：数据库真实数据放在 Docker 之外
+      # 这里使用 WSL 映射到 Windows E 盘的目录
+      - /home/administrator/data/docker/mysql/data:/var/lib/mysql
+
+      # MySQL 自定义配置（可选）
+      - /home/administrator/data/docker/mysql/conf:/etc/mysql/conf.d
+
+      # 备份目录（给后续 mysqldump / xtrabackup 等使用）
+      - /home/administrator/data/docker/mysql/backup:/backup
+
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "mysqladmin ping -h 127.0.0.1 -uroot -p${MYSQL_ROOT_PASSWORD} --silent"
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+
+    stop_grace_period: 60s
+
+    networks:
+      - mysql-net
+
+networks:
+  mysql-net:
+    driver: bridge
