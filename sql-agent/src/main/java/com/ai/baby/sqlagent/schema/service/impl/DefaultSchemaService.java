@@ -3,8 +3,11 @@ package com.ai.baby.sqlagent.schema.service.impl;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.sql.DataSource;
 
@@ -17,7 +20,9 @@ import com.ai.baby.sqlagent.schema.service.SchemaService;
 
 import jakarta.annotation.PostConstruct;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j 
 @Service
 @AllArgsConstructor
 public class DefaultSchemaService implements SchemaService {
@@ -56,6 +61,7 @@ public class DefaultSchemaService implements SchemaService {
             while (tables.next()) {
 
                 String table = tables.getString("TABLE_NAME");
+                String remarks = tables.getString("REMARKS");
 
                 ResultSet columns = meta.getColumns(
                         null,
@@ -76,6 +82,7 @@ public class DefaultSchemaService implements SchemaService {
 
                 SchemaInfo schemaInfo = SchemaInfo.builder()
                         .tableName(table)
+                        .comment(remarks)
                         .columns(columnList)
                         .build();
                 schemaList.add(schemaInfo);
