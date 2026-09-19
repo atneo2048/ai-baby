@@ -4,8 +4,8 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class SqlAgentApplication {
+public class NlpSqlAgentApplication {
     public static void main(String[] args) {
-        SpringApplication.run(SqlAgentApplication.class, args);
+        SpringApplication.run(NlpSqlAgentApplication.class, args);
     }
 }

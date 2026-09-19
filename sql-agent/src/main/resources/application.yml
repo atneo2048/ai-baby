@@ -17,12 +17,16 @@ logging:
     com.ai.baby.sqlagent: DEBUG
     dev.langchain4j: DEBUG
     dev.langchain4j.service: DEBUG
-    # dev.langchain4j.model.openai: TRACE
+    dev.langchain4j.model.openai: TRACE
+    dev.langchain4j.http.client.log: DEBUG
+    LOCAL-LLM-HTTP: DEBUG
+
+#########################################    
 
 llm:
   provider: qwen
   base-url: ${QWEN_BASE_URL}
   api-key: ${QWEN_API_KEY}
-  model: qwen-plus
+  model: Qwen3-8B
   temperature: 0.0
   timeout: 60

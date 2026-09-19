@@ -42,4 +42,36 @@ public class DefaultPromptBuilder implements PromptBuilder {
                                 "\n",
                                 context.getRules()));
     }
+
+    @Override
+    public String reBuild(AgentContext context,
+            String previousSql,
+            String error) {
+
+        String template = loader.load(
+                "sql-agent-recheck.txt");
+
+        return template
+                .replace(
+                        "{{database}}",
+                        context.getDatabaseType())
+                .replace(
+                        "{{schema}}",
+                        formatter.format(
+                                context.getSchemas()))
+                .replace(
+                        "{{question}}",
+                        context.getQuestion())
+                .replace(
+                        "{{previousSql}}",
+                        previousSql)
+                .replace(
+                        "{{error}}",
+                        error)
+                .replace(
+                        "{{rules}}",
+                        String.join(
+                                "\n",
+                                context.getRules()));
+    }
 }

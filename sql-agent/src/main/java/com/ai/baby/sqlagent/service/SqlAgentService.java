@@ -93,6 +93,7 @@ public class SqlAgentService {
 
                 } catch (Exception e) {
 
+                        log.error("调用大模型异常", e);
                         context.setStage(
                                         AgentStage.FAILED);
 
@@ -300,7 +301,7 @@ public class SqlAgentService {
                                 .schemas(
                                                 context.getSchemas())
                                 .databaseType(
-                                                "OceanBase")
+                                                "Mysql")
                                 .rules(List.of(
                                                 "只允许SELECT",
                                                 "禁止INSERT",

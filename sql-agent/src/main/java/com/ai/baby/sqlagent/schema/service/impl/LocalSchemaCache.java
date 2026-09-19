@@ -10,8 +10,6 @@ import org.springframework.stereotype.Component;
 import com.ai.baby.sqlagent.domain.SchemaInfo;
 import com.ai.baby.sqlagent.schema.SchemaCache;
 
-
-
 @Component
 public class LocalSchemaCache
         implements SchemaCache {
