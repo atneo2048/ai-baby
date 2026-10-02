@@ -1,4 +1,4 @@
-package com.ai.baby.sqlagent.domain;
+package com.ai.baby.sqlagent.schema.domain;
 
 import lombok.Builder;
 import lombok.Data;
@@ -21,4 +21,14 @@ public class ColumnInfo {
      * 描述
      */
     private String comment;
+
+    /**
+     * 是否允许 NULL
+     */
+    private Boolean nullable;
+
+    /**
+     * 是否主键
+     */
+    private Boolean primaryKey;
 }

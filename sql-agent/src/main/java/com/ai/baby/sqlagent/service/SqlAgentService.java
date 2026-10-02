@@ -15,7 +15,7 @@ import com.ai.baby.sqlagent.domain.AgentStage;
 import com.ai.baby.sqlagent.domain.GuardResult;
 import com.ai.baby.sqlagent.domain.IntentResult;
 import com.ai.baby.sqlagent.domain.QueryResult;
-import com.ai.baby.sqlagent.domain.SchemaInfo;
+import com.ai.baby.sqlagent.schema.domain.SchemaInfo;
 import com.ai.baby.sqlagent.domain.SqlErrorType;
 import com.ai.baby.sqlagent.domain.SqlGenerationResult;
 import com.ai.baby.sqlagent.exception.SqlBlockedException;
@@ -199,10 +199,7 @@ public class SqlAgentService {
                                 "[SQL-AGENT][{}] refreshing schema...",
                                 context.getExecutionId());
 
-                List<SchemaInfo> schemas = schemaRetriever.refresh(
-                                context.getQuestion(),
-                                context.getSql(),
-                                context.getError());
+                List<SchemaInfo> schemas = schemaRetriever.retrieve(context.getQuestion());
 
                 context.setSchemas(
                                 schemas);
