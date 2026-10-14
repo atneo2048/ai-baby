@@ -27,6 +27,6 @@ llm:
   provider: qwen
   base-url: ${QWEN_BASE_URL}
   api-key: ${QWEN_API_KEY}
-  model: Qwen3-8B
+  model: qwen3.8-flash
   temperature: 0.0
   timeout: 60

@@ -43,10 +43,9 @@ public class DefaultSqlErrorClassifier
         }
 
         // SQL语法错误
-        if (message.contains(
-                "syntax error")
-                || message.contains(
-                        "sql syntax")) {
+        if (message.contains("syntax error")
+                || message.contains("sql syntax")
+                || message.contains("error in your sql syntax")) {
 
             return SqlErrorType.SYNTAX_ERROR;
         }

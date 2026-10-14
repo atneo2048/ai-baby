@@ -17,6 +17,7 @@ public class DeprecatedDefaultSqlGenerator implements SqlGenerator {
 
     private final PromptBuilder promptBuilder;
 
+
     @Override
     public SqlGenerationResult generate(
             AgentContext context) {
