@@ -11,11 +11,12 @@ import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
-public class DefaultSqlGenerator implements SqlGenerator {
+public class DeprecatedDefaultSqlGenerator implements SqlGenerator {
 
     private final SqlAgent sqlAgent;
 
     private final PromptBuilder promptBuilder;
+
 
     @Override
     public SqlGenerationResult generate(

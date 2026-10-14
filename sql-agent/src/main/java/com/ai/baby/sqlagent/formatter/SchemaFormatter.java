@@ -1,7 +1,7 @@
 package com.ai.baby.sqlagent.formatter;
 
-import com.ai.baby.sqlagent.domain.ColumnInfo;
-import com.ai.baby.sqlagent.domain.SchemaInfo;
+import com.ai.baby.sqlagent.schema.domain.ColumnInfo;
+import com.ai.baby.sqlagent.schema.domain.SchemaInfo;
 
 import java.util.List;
 

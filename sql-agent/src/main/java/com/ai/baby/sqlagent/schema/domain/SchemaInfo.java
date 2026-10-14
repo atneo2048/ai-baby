@@ -1,4 +1,4 @@
-package com.ai.baby.sqlagent.domain;
+package com.ai.baby.sqlagent.schema.domain;
 
 import java.util.List;
 

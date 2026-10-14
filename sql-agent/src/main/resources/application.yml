@@ -6,7 +6,7 @@ spring:
     name: sql-agent
 
   datasource:
-    url: jdbc:mysql://127.0.0.1:3306/ai_baby?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai&useSSL=false&allowMultiQueries=true&rewriteBatchedStatements=true
+    url: jdbc:mysql://127.0.0.1:3306/ai_baby?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai&useSSL=false&allowMultiQueries=true&allowPublicKeyRetrieval=true&rewriteBatchedStatements=true
     username: ${MYSQL_USER}
     password: ${MYSQL_PASSWORD}
     driver-class-name: com.mysql.cj.jdbc.Driver
@@ -27,6 +27,6 @@ llm:
   provider: qwen
   base-url: ${QWEN_BASE_URL}
   api-key: ${QWEN_API_KEY}
-  model: Qwen3-8B
+  model: qwen3.8-flash
   temperature: 0.0
   timeout: 60

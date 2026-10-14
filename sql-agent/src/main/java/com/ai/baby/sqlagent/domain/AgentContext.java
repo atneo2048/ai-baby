@@ -2,6 +2,7 @@ package com.ai.baby.sqlagent.domain;
 
 import java.util.List;
 
+import com.ai.baby.sqlagent.schema.domain.SchemaInfo;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

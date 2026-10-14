@@ -1,8 +1,9 @@
-package com.ai.baby.sqlagent.schema;
+package com.ai.baby.sqlagent.schema.service;
 
 import java.util.List;
 
-import com.ai.baby.sqlagent.domain.SchemaInfo;
+import com.ai.baby.sqlagent.schema.domain.SchemaInfo;
+import com.ai.baby.sqlagent.schema.domain.SchemaRelation;
 
 /**
  * 数据库Schema缓存
@@ -21,4 +22,12 @@ public interface SchemaCache {
     void clear();
 
     boolean isEmpty();
+
+    Integer size();
+
+    void putRelations(List<SchemaRelation> relations);
+
+    List<SchemaRelation> getRelations(String tableName);
+
+    List<SchemaRelation> getRelations();
 }
