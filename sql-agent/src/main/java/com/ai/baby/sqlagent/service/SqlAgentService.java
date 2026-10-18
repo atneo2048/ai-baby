@@ -19,6 +19,9 @@ import com.ai.baby.sqlagent.tool.DatabaseTool;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+/**
+ * SQL智能体服务
+ */
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -42,15 +45,12 @@ public class SqlAgentService {
 
     private static final int MAX_RETRIES = 2;
 
-    public AgentResponse chat(
-            String question) {
+    public AgentResponse chat(String question) {
 
         long start = System.currentTimeMillis();
 
         AgentExecutionContext context = AgentExecutionContext.builder()
-                .executionId(
-                        UUID.randomUUID()
-                                .toString())
+                .executionId(UUID.randomUUID().toString())
                 .question(question)
                 .stage(AgentStage.INIT)
                 .retryCount(0)
@@ -76,8 +76,7 @@ public class SqlAgentService {
 
             long totalTime = System.currentTimeMillis() - start;
 
-            AgentExecutionRecord record =
-                    buildExecutionRecord(context, totalTime);
+            AgentExecutionRecord record = buildExecutionRecord(context, totalTime);
 
             agentExecutionAuditService.record(record);
 
@@ -226,55 +225,41 @@ public class SqlAgentService {
         );
     }
 
-    private void analyzeIntent(
-            AgentExecutionContext context) {
+    /**
+     * 分析用户意图
+     */
+    private void analyzeIntent(AgentExecutionContext context) {
 
-        logStage(
-                context,
-                "analyze intent");
+        logStage(context, "analyze intent");
 
-        context.setStage(
-                AgentStage.INTENT);
+        context.setStage(AgentStage.INTENT);
 
-        IntentResult intent = intentAnalyzer.analyze(
-                context.getQuestion());
+        IntentResult intent = intentAnalyzer.analyze(context.getQuestion());
 
         context.setIntent(intent);
 
-        logStage(
-                context,
-                "Intent = "
-                        + intent.getIntentType()
-                        + ", confidence="
-                        + intent.getConfidence());
+        logStage(context, "Intent = " + intent.getIntentType() + ", confidence=" + intent.getConfidence());
     }
 
-    private void retrieveSchema(
-            AgentExecutionContext context) {
+    /**
+     * 检索数据库模式
+     */
+    private void retrieveSchema(AgentExecutionContext context) {
 
-        context.setStage(
-                AgentStage.SCHEMA);
+        context.setStage(AgentStage.SCHEMA);
 
-        logStage(
-                context,
-                "开始Schema检索");
+        logStage(context, "开始Schema检索");
 
-        List<SchemaInfo> schemas = schemaRetriever.retrieve(
-                context.getQuestion());
+        List<SchemaInfo> schemas = schemaRetriever.retrieve(context.getQuestion());
 
         context.setSchemas(schemas);
 
-        logStage(
-                context,
-                "Schema数量="
-                        + schemas.size());
+        logStage(context, "Schema数量=" + schemas.size());
     }
 
-    private void buildContext(
-            AgentExecutionContext context) {
+    private void buildContext(AgentExecutionContext context) {
 
-        context.setStage(
-                AgentStage.CONTEXT);
+        context.setStage(AgentStage.CONTEXT);
 
         AgentContext agentContext = AgentContext.builder()
                 .question(

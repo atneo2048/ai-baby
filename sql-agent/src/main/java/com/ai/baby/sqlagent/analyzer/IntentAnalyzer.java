@@ -11,6 +11,9 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 
 import lombok.extern.slf4j.Slf4j;
 
+/**
+ * 意图分析器
+ */
 @Slf4j
 @Service
 public class IntentAnalyzer {
