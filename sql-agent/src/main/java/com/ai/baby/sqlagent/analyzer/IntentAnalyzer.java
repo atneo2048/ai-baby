@@ -1,8 +1,5 @@
 package com.ai.baby.sqlagent.analyzer;
 
-/**
- * 意图分析器
- */
 import org.springframework.stereotype.Service;
 
 import com.ai.baby.sqlagent.domain.IntentResult;
@@ -37,7 +34,7 @@ public class IntentAnalyzer {
         } catch (JsonProcessingException e) {
             log.error("AI意图分析器解析JSON失败", e);
         }
-        return result;
+        return null;
     }
 
     public IntentResult ruleAnalyze(String question) {

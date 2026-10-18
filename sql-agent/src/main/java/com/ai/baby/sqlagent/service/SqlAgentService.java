@@ -5,13 +5,16 @@ import java.util.List;
 import java.util.UUID;
 
 import com.ai.baby.sqlagent.domain.*;
+import com.ai.baby.sqlagent.schema.domain.QueryContext;
+import com.ai.baby.sqlagent.schema.service.QueryContextBuilder;
+import com.ai.baby.sqlagent.sql.service.SqlGenerator;
+import lombok.val;
 import org.springframework.stereotype.Service;
 
 import com.ai.baby.sqlagent.analyzer.IntentAnalyzer;
 import com.ai.baby.sqlagent.schema.domain.SchemaInfo;
 import com.ai.baby.sqlagent.exception.SqlBlockedException;
 import com.ai.baby.sqlagent.exception.SqlExecutionException;
-import com.ai.baby.sqlagent.generator.SqlGenerator;
 import com.ai.baby.sqlagent.guard.SqlGuard;
 import com.ai.baby.sqlagent.schema.service.SchemaRetriever;
 import com.ai.baby.sqlagent.tool.DatabaseTool;
@@ -29,7 +32,7 @@ public class SqlAgentService {
 
     private final IntentAnalyzer intentAnalyzer;
 
-    private final SchemaRetriever schemaRetriever;
+    private final QueryContextBuilder queryContextBuilder;
 
     private final SqlGenerator sqlGenerator;
 
@@ -62,9 +65,6 @@ public class SqlAgentService {
 
             retrieveSchema(context);
 
-            buildContext(context);
-
-            // 第一次生成
             generateSql(context);
 
             // 自动执行 + 重试
@@ -81,7 +81,6 @@ public class SqlAgentService {
             agentExecutionAuditService.record(record);
 
             return response;
-
         } catch (Exception e) {
 
             log.error("调用大模型异常", e);
@@ -106,8 +105,7 @@ public class SqlAgentService {
         }
     }
 
-    private void executeWithRetry(
-            AgentExecutionContext context) {
+    private void executeWithRetry(AgentExecutionContext context) {
 
         while (true) {
 
@@ -116,18 +114,15 @@ public class SqlAgentService {
                 // ====================
                 // 1. Guard
                 // ====================
-
                 guardSql(context);
 
                 // ====================
                 // 2. Execute
                 // ====================
-
                 executeSql(context);
 
                 // 成功
                 return;
-
             } catch (SqlBlockedException e) {
                 // Guard拦截
                 throw e;
@@ -179,50 +174,10 @@ public class SqlAgentService {
                 // 6. 增加重试次数并重新生成 SQL
                 context.setRetryCount(context.getRetryCount() + 1);
 
-                regenerateSql(context, decision.getFeedback());
+                // TODO 重试待完成
+//                regenerateSql(context, decision.getFeedback());
             }
         }
-    }
-
-    private void regenerateSql(
-            AgentExecutionContext context,
-            String feedback) {
-
-        context.setQueryResult(null);
-        context.setGuardResult(null);
-
-        context.setStage(AgentStage.SCHEMA);
-
-        List<SchemaInfo> schemas =
-                schemaRetriever.retrieve(context.getQuestion());
-
-        context.setSchemas(schemas);
-        context.getAgentContext().setSchemas(schemas);
-
-        context.setStage(AgentStage.SQL_GENERATION);
-
-        SqlGenerationResult result = sqlGenerator.regenerate(
-                context.getAgentContext(),
-                context.getSql(),
-                feedback
-        );
-
-        if (result == null
-                || result.getSql() == null
-                || result.getSql().isBlank()) {
-            throw new IllegalStateException(
-                    "Reflection 重新生成 SQL 失败：生成结果为空"
-            );
-        }
-
-        context.setSqlResult(result);
-        context.setSql(result.getSql());
-
-        log.info(
-                "[SQL-AGENT][{}] regenerated SQL: {}",
-                context.getExecutionId(),
-                result.getSql()
-        );
     }
 
     /**
@@ -247,40 +202,11 @@ public class SqlAgentService {
     private void retrieveSchema(AgentExecutionContext context) {
 
         context.setStage(AgentStage.SCHEMA);
-
         logStage(context, "开始Schema检索");
+        QueryContext queryContext = queryContextBuilder.build(context.getQuestion());
+        context.setQueryContext(queryContext);
 
-        List<SchemaInfo> schemas = schemaRetriever.retrieve(context.getQuestion());
-
-        context.setSchemas(schemas);
-
-        logStage(context, "Schema数量=" + schemas.size());
-    }
-
-    private void buildContext(AgentExecutionContext context) {
-
-        context.setStage(AgentStage.CONTEXT);
-
-        AgentContext agentContext = AgentContext.builder()
-                .question(
-                        context.getQuestion())
-                .intent(
-                        context.getIntent())
-                .schemas(
-                        context.getSchemas())
-                .databaseType(
-                        "Mysql")
-                .rules(List.of(
-                        "只允许SELECT",
-                        "禁止INSERT",
-                        "禁止UPDATE",
-                        "禁止DELETE",
-                        "禁止DROP",
-                        "禁止TRUNCATE"))
-                .build();
-
-        context.setAgentContext(
-                agentContext);
+        logStage(context, "Schema数量=" + queryContext.getSchemas().size());
     }
 
     private void generateSql(
@@ -289,35 +215,25 @@ public class SqlAgentService {
         context.setStage(
                 AgentStage.SQL_GENERATION);
 
-        SqlGenerationResult result = sqlGenerator.generate(
-                context.getAgentContext());
+        SqlGenerationResult result = sqlGenerator.generate(context.getQueryContext());
 
         context.setSqlResult(result);
 
-        context.setSql(
-                result.getSql());
-
-        logStage(
-                context,
-                "生成SQL: "
-                        + result.getSql());
+        logStage(context,"生成SQL: " + result.getSql());
     }
 
-    private void guardSql(
-            AgentExecutionContext context) {
+    private void guardSql(AgentExecutionContext context) {
 
-        context.setStage(
-                AgentStage.SQL_GUARD);
+        context.setStage(AgentStage.SQL_GUARD);
+        val sqlResult = context.getSqlResult();
 
-        GuardResult result = sqlGuard.check(
-                context.getSql());
+        GuardResult result = sqlGuard.check(sqlResult.getSql());
 
         context.setGuardResult(result);
 
-        logStage(
-                context,
+        logStage(context,
                 "Guard: allowed="
-                        + result.isAllowed()
+                + result.isAllowed()
                         + ", risk="
                         + result.getRisk());
 
@@ -333,9 +249,9 @@ public class SqlAgentService {
 
         context.setStage(
                 AgentStage.SQL_EXECUTION);
-
+        val sqlResult = context.getSqlResult();
         QueryResult result = databaseTool.executeSql(
-                context.getSql());
+                sqlResult.getSql());
 
         context.setQueryResult(result);
 
@@ -370,7 +286,8 @@ public class SqlAgentService {
                 .intent(
                         context.getIntent())
                 .sql(
-                        context.getSql())
+                        context.getSqlResult()
+                                .getSql())
                 .explanation(
                         context.getSqlResult()
                                 .getExplanation())
@@ -393,7 +310,8 @@ public class SqlAgentService {
                 .intent(
                         context.getIntent())
                 .sql(
-                        context.getSql())
+                        context.getSqlResult()
+                                .getSql())
                 .risk(
                         context.getGuardResult() == null
                                 ? null
@@ -441,8 +359,8 @@ public class SqlAgentService {
                                 : intent.getConfidence()
                 )
 
-                .sql(context.getSql())
-
+                .sql(context.getSqlResult()
+                        .getSql())
                 .risk(
                         guard == null
                                 ? null

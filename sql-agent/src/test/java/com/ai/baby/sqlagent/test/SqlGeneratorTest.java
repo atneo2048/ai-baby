@@ -1,5 +1,6 @@
 package com.ai.baby.sqlagent.test;
 
+import com.ai.baby.sqlagent.domain.SqlGenerationResult;
 import com.ai.baby.sqlagent.schema.domain.QueryContext;
 import com.ai.baby.sqlagent.schema.service.QueryContextBuilder;
 import com.ai.baby.sqlagent.sql.service.SqlGenerator;
@@ -25,7 +26,7 @@ class SqlGeneratorTest {
         QueryContext context =
                 queryContextBuilder.build(question);
 
-        String sql =
+        SqlGenerationResult sql =
                 sqlGenerator.generate(context);
 
         System.out.println(

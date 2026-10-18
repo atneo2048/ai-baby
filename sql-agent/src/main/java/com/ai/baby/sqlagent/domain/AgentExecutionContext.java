@@ -1,5 +1,6 @@
 package com.ai.baby.sqlagent.domain;
 
+import com.ai.baby.sqlagent.schema.domain.QueryContext;
 import com.ai.baby.sqlagent.schema.domain.SchemaInfo;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -37,12 +38,7 @@ public class AgentExecutionContext {
     /**
      * Agent上下文
      */
-    private AgentContext agentContext;
-
-    /**
-     * 生成的SQL
-     */
-    private String sql;
+    private QueryContext queryContext;
 
     /**
      * SQL生成结果

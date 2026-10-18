@@ -1,9 +1,11 @@
 package com.ai.baby.sqlagent.sql.service.impl;
 
+import com.ai.baby.sqlagent.domain.SqlGenerationResult;
 import com.ai.baby.sqlagent.llm.ChatModelFactory;
+import com.ai.baby.sqlagent.parser.Parser;
+import com.ai.baby.sqlagent.prompt.PromptBuilder;
 import com.ai.baby.sqlagent.schema.domain.QueryContext;
 import com.ai.baby.sqlagent.sql.service.SqlGenerator;
-import com.ai.baby.sqlagent.sql.service.SqlPromptBuilder;
 import dev.langchain4j.model.chat.ChatModel;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -16,10 +18,12 @@ public class DefaultSqlGenerator implements SqlGenerator {
 
     private final ChatModelFactory chatModelFactory;
 
-    private final SqlPromptBuilder sqlPromptBuilder;
+    private final PromptBuilder promptBuilder;
+
+    private final Parser<SqlGenerationResult> parser;
 
     @Override
-    public String generate(QueryContext context) {
+    public SqlGenerationResult generate(QueryContext context) {
 
         if (context == null) {
             throw new IllegalArgumentException(
@@ -27,20 +31,16 @@ public class DefaultSqlGenerator implements SqlGenerator {
             );
         }
 
-        String prompt =
-                sqlPromptBuilder.build(context);
+        String prompt = promptBuilder.build(context);
 
         log.info("========== SQL Generation ==========");
         log.info("SQL Prompt:\n{}", prompt);
 
-        ChatModel chatModel =
-                chatModelFactory.getChatModel();
+        ChatModel chatModel = chatModelFactory.getChatModel();
 
-        String response =
-                chatModel.chat(prompt);
+        String response = chatModel.chat(prompt);
 
         log.info("LLM SQL Response:\n{}", response);
-
-        return response;
+        return parser.parse(response);
     }
 }

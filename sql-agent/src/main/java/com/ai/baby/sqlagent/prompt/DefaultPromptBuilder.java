@@ -3,6 +3,7 @@ package com.ai.baby.sqlagent.prompt;
 import com.ai.baby.sqlagent.domain.AgentContext;
 import com.ai.baby.sqlagent.formatter.SchemaFormatter;
 
+import com.ai.baby.sqlagent.schema.domain.QueryContext;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -20,7 +21,7 @@ public class DefaultPromptBuilder implements PromptBuilder {
     }
 
     @Override
-    public String build(AgentContext context) {
+    public String build(QueryContext context) {
 
         String template = loader.load(
                 "sql-agent.txt");
@@ -35,12 +36,7 @@ public class DefaultPromptBuilder implements PromptBuilder {
                                 context.getSchemas()))
                 .replace(
                         "{{question}}",
-                        context.getQuestion())
-                .replace(
-                        "{{rules}}",
-                        String.join(
-                                "\n",
-                                context.getRules()));
+                        context.getQuestion());
     }
 
     @Override

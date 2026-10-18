@@ -1,5 +1,6 @@
 package com.ai.baby.sqlagent.controller;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -13,11 +14,8 @@ import com.ai.baby.sqlagent.service.SqlAgentService;
 @RequestMapping("/chat")
 public class ChatController {
 
-    private final SqlAgentService sqlAgentService;
-
-    ChatController(SqlAgentService sqlAgentService) {
-        this.sqlAgentService = sqlAgentService;
-    }
+    @Autowired
+    private SqlAgentService sqlAgentService;
 
     @GetMapping("/health")
     public String health() {

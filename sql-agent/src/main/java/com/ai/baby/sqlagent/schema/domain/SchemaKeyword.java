@@ -27,7 +27,6 @@ public class SchemaKeyword {
 
     /**
      * 关键词对应的目标字段。
-     *
      * 可以为空。
      */
     private String columnName;

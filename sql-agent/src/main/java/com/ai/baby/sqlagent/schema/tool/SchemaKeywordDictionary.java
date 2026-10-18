@@ -139,13 +139,4 @@ public class SchemaKeywordDictionary {
                         question.contains(keyword.getKeyword()))
                 .toList();
     }
-
-    /**
-     * 返回全部关键词。
-     *
-     * 方便后续测试或调试。
-     */
-    public List<SchemaKeyword> getAll() {
-        return keywords;
-    }
 }

@@ -61,8 +61,7 @@ class SqlAgentPipelineTest {
         log.info("");
         log.info("========== Step 2: Execute SQL Pipeline ==========");
 
-        QueryResult result =
-                sqlQueryService.execute(context);
+        QueryResult result = sqlQueryService.execute(context);
 
 
         // =====================================================

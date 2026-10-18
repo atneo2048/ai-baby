@@ -20,8 +20,7 @@ import java.util.Set;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class DefaultQueryContextBuilder
-        implements QueryContextBuilder {
+public class DefaultQueryContextBuilder implements QueryContextBuilder {
 
     private final SchemaRetriever schemaRetriever;
 
@@ -38,27 +37,21 @@ public class DefaultQueryContextBuilder
         // =====================================================
         // 1. 根据问题获取直接相关 Schema
         // =====================================================
-
-        List<SchemaInfo> directSchemas =
-                schemaRetriever.retrieve(question);
+        List<SchemaInfo> directSchemas = schemaRetriever.retrieve(question);
 
         log.info("Direct Schemas: {}", directSchemas);
 
         // =====================================================
         // 2. 提取具体业务实体
         // =====================================================
-
-        List<String> entities =
-                entityExtractor.extract(question);
+        List<String> entities = entityExtractor.extract(question);
 
         log.info("Entities: {}", entities);
 
         // =====================================================
         // 3. 到数据库中验证实体值
         // =====================================================
-
-        List<DataValueMatch> dataValues =
-                dataValueRetriever.retrieve(entities);
+        List<DataValueMatch> dataValues = dataValueRetriever.retrieve(entities);
 
         log.info("Data Values: {}", dataValues);
 
@@ -66,41 +59,21 @@ public class DefaultQueryContextBuilder
         // 4. 汇总候选表
         // =====================================================
 
-        Set<String> candidateTables =
-                new LinkedHashSet<>();
+        Set<String> candidateTables = new LinkedHashSet<>();
 
-        directSchemas.forEach(schema ->
-                candidateTables.add(
-                        schema.getTableName()
-                )
-        );
+        directSchemas.forEach(schema -> candidateTables.add(schema.getTableName()));
+        dataValues.forEach(dataValue -> candidateTables.add(dataValue.getTableName()));
 
-        dataValues.forEach(dataValue ->
-                candidateTables.add(
-                        dataValue.getTableName()
-                )
-        );
-
-        log.info(
-                "Schema candidates after data value retrieval: {}",
-                candidateTables
-        );
+        log.info("Schema candidates after data value retrieval: {}", candidateTables);
 
         // =====================================================
         // 5. 根据关系补齐中间表
         // =====================================================
+        List<SchemaInfo> finalSchemas = schemaRetriever.expandRelations(new ArrayList<>(candidateTables));
 
-        List<SchemaInfo> finalSchemas =
-                schemaRetriever.expandRelations(
-                        new ArrayList<>(candidateTables)
-                );
-
-        log.info(
-                "Final Schemas: {}",
-                finalSchemas.stream()
+        log.info("Final Schemas: {}", finalSchemas.stream()
                         .map(SchemaInfo::getTableName)
-                        .toList()
-        );
+                        .toList());
 
         // =====================================================
         // 6. 获取最终 Schema 之间的关系
@@ -128,6 +101,7 @@ public class DefaultQueryContextBuilder
         QueryContext context =
                 QueryContext.builder()
                         .question(question)
+                        .databaseType("MySQL")
                         .schemas(finalSchemas)
                         .entities(entities)
                         .dataValues(dataValues)

@@ -2,6 +2,7 @@ package com.ai.baby.sqlagent.sql.service.impl;
 
 import com.ai.baby.sqlagent.domain.GuardResult;
 import com.ai.baby.sqlagent.domain.QueryResult;
+import com.ai.baby.sqlagent.domain.SqlGenerationResult;
 import com.ai.baby.sqlagent.guard.SqlGuard;
 import com.ai.baby.sqlagent.schema.domain.QueryContext;
 import com.ai.baby.sqlagent.sql.service.SqlExtractor;
@@ -10,6 +11,7 @@ import com.ai.baby.sqlagent.sql.service.SqlQueryService;
 import com.ai.baby.sqlagent.tool.DatabaseTool;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import lombok.val;
 import org.springframework.stereotype.Service;
 
 @Slf4j
@@ -18,8 +20,6 @@ import org.springframework.stereotype.Service;
 public class DefaultSqlQueryService implements SqlQueryService {
 
     private final SqlGenerator sqlGenerator;
-
-    private final SqlExtractor sqlExtractor;
 
     private final SqlGuard sqlGuard;
 
@@ -33,46 +33,33 @@ public class DefaultSqlQueryService implements SqlQueryService {
                     "QueryContext must not be null");
         }
 
-        log.info(
-                "========== SQL Query Pipeline ==========");
+        log.info("========== SQL Query Pipeline ==========");
 
         // =====================================================
         // 1. LLM 生成 SQL
         // =====================================================
 
-        String rawResponse =
-                sqlGenerator.generate(context);
+        SqlGenerationResult generate = sqlGenerator.generate(context);
 
-        log.info(
-                "Step 1 - Raw LLM Response:");
+        log.info("Step 1 - Raw LLM Response:");
 
-        log.info(
-                "{}",
-                rawResponse);
+        log.info("{}", generate);
 
         // =====================================================
         // 2. 提取纯 SQL
         // =====================================================
+        String sql = generate.getSql();
 
-        String sql =
-                sqlExtractor.extract(rawResponse);
-
-        log.info(
-                "Step 2 - Extracted SQL:");
-
-        log.info(
-                "{}",
-                sql);
+        log.info("Step 2 - Extracted SQL:");
+        log.info("{}", sql);
 
         // =====================================================
         // 3. SQL 安全检查
         // =====================================================
 
-        GuardResult guardResult =
-                sqlGuard.check(sql);
+        GuardResult guardResult = sqlGuard.check(sql);
 
-        log.info(
-                "Step 3 - SQL Guard Result: allowed={}, risk={}, reason={}",
+        log.info("Step 3 - SQL Guard Result: allowed={}, risk={}, reason={}",
                 guardResult.isAllowed(),
                 guardResult.getRisk(),
                 guardResult.getReason());
@@ -90,21 +77,17 @@ public class DefaultSqlQueryService implements SqlQueryService {
             return QueryResult.builder()
                     .sql(sql)
                     .success(false)
-                    .error(
-                            "SQL安全检查未通过："
-                                    + guardResult.getReason())
+                    .error("SQL安全检查未通过：" + guardResult.getReason())
                     .build();
         }
 
-        log.info(
-                "Step 3 - SQL Guard Passed");
+        log.info("Step 3 - SQL Guard Passed");
 
         // =====================================================
         // 5. 执行 SQL
         // =====================================================
 
-        QueryResult queryResult =
-                databaseTool.executeSql(sql);
+        QueryResult queryResult = databaseTool.executeSql(sql);
 
         log.info(
                 "Step 4 - SQL Executed, success={}, costMs={}",

@@ -15,6 +15,11 @@ public class QueryContext {
     private String question;
 
     /**
+     * 数据库类型
+     */
+    private String databaseType;
+
+    /**
      * 本次查询涉及的 Schema
      */
     private List<SchemaInfo> schemas;
