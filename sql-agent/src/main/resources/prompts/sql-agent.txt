@@ -26,6 +26,7 @@
 用户问题：
 {{question}}
 
+{{feedback}}
 
 请严格返回JSON，不要输出任何其他内容：
 

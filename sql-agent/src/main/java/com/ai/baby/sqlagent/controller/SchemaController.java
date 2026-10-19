@@ -4,24 +4,21 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.ai.baby.sqlagent.schema.service.SchemaCache;
-
+import com.ai.baby.sqlagent.schema.service.SchemaService;
 
 @RestController
 @RequestMapping("/schema")
 public class SchemaController {
 
-    private final SchemaCache cache;
+    private final SchemaService schemaService;
 
-    public SchemaController(
-            SchemaCache cache) {
-        this.cache = cache;
-
+    public SchemaController(SchemaService schemaService) {
+        this.schemaService = schemaService;
     }
 
     @PostMapping("/refresh")
     public String refresh() {
-        cache.clear();
-        return "schema cache cleared";
+        schemaService.refresh();
+        return "schema cache refreshed";
     }
 }

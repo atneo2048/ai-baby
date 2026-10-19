@@ -38,4 +38,9 @@ public class QueryContext {
      * Schema 之间的关联关系
      */
     private List<SchemaRelation> relations;
+
+    /**
+     * 重试时的修正反馈（首次生成为 null）
+     */
+    private String feedback;
 }

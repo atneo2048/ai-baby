@@ -20,8 +20,7 @@ public class AIConfig {
     }
 
     @Bean
-    public IntentClassifier intentClassifier(
-            ChatModelFactory factory) {
+    public IntentClassifier intentClassifier(ChatModelFactory factory) {
         return AiServices.builder(IntentClassifier.class)
                 .chatModel(factory.getChatModel())
                 .build();

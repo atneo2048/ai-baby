@@ -1,4 +1,3 @@
-
 package com.ai.baby.sqlagent.domain;
 
 import lombok.Builder;

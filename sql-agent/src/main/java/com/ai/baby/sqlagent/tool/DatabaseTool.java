@@ -23,11 +23,8 @@ public class DatabaseTool {
         long start = System.currentTimeMillis();
 
         try {
-
             List<Map<String, Object>> data = jdbcTemplate.queryForList(sql);
-
-            long cost = System.currentTimeMillis()
-                    - start;
+            long cost = System.currentTimeMillis() - start;
 
             return QueryResult.builder()
                     .sql(sql)
@@ -37,16 +34,13 @@ public class DatabaseTool {
                     .build();
 
         } catch (Exception e) {
-
-            long cost = System.currentTimeMillis()
-                    - start;
+            long cost = System.currentTimeMillis() - start;
 
             return QueryResult.builder()
                     .sql(sql)
                     .success(false)
                     .costMs(cost)
-                    .error(
-                            e.getMessage())
+                    .error(e.getMessage())
                     .build();
         }
     }

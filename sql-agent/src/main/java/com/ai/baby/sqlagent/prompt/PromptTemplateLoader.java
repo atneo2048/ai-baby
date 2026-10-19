@@ -10,26 +10,17 @@ import org.springframework.util.StreamUtils;
 public class PromptTemplateLoader {
 
     /**
-     * 加载Prompt模板
-     *  TODO 这里可以从数据库读取Prompt模板内容
-     * @param name Prompt模板名称
-     * @return Prompt模板内容
+     * 加载 Prompt 模板。
+     * TODO 后续可从数据库读取 Prompt 模板内容。
      */
     @SuppressWarnings("null")
     public String load(String name) {
 
         try {
-
-            ClassPathResource resource = new ClassPathResource(
-                    "prompts/" + name);
-            return StreamUtils.copyToString(
-                    resource.getInputStream(),
-                    StandardCharsets.UTF_8);
-
+            ClassPathResource resource = new ClassPathResource("prompts/" + name);
+            return StreamUtils.copyToString(resource.getInputStream(), StandardCharsets.UTF_8);
         } catch (Exception e) {
-            throw new RuntimeException(
-                    "加载Prompt失败",
-                    e);
+            throw new RuntimeException("加载Prompt失败", e);
         }
     }
 }

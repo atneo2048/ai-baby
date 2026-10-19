@@ -1,8 +1,8 @@
 package com.ai.baby.sqlagent.schema.domain;
 
-import lombok.Data;
-
 import java.util.List;
+
+import lombok.Data;
 
 @Data
 public class ExtractedEntities {

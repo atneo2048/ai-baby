@@ -1,12 +1,13 @@
 package com.ai.baby.sqlagent.test;
 
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+
 import com.ai.baby.sqlagent.domain.SqlGenerationResult;
 import com.ai.baby.sqlagent.schema.domain.QueryContext;
 import com.ai.baby.sqlagent.schema.service.QueryContextBuilder;
 import com.ai.baby.sqlagent.sql.service.SqlGenerator;
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
 class SqlGeneratorTest {
@@ -20,19 +21,11 @@ class SqlGeneratorTest {
     @Test
     void generateSql() {
 
-        String question =
-                "查询研发部平均工资";
+        String question = "查询研发部平均工资";
+        QueryContext context = queryContextBuilder.build(question);
+        SqlGenerationResult sql = sqlGenerator.generate(context);
 
-        QueryContext context =
-                queryContextBuilder.build(question);
-
-        SqlGenerationResult sql =
-                sqlGenerator.generate(context);
-
-        System.out.println(
-                "========== Generated SQL =========="
-        );
-
+        System.out.println("========== Generated SQL ==========");
         System.out.println(sql);
     }
 }

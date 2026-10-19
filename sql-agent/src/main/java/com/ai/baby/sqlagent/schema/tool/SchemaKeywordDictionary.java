@@ -135,8 +135,7 @@ public class SchemaKeywordDictionary {
         }
 
         return keywords.stream()
-                .filter(keyword ->
-                        question.contains(keyword.getKeyword()))
+                .filter(keyword -> question.contains(keyword.getKeyword()))
                 .toList();
     }
 }

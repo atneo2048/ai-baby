@@ -1,29 +1,34 @@
 package com.ai.baby.sqlagent.service;
 
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.UUID;
 
-import com.ai.baby.sqlagent.domain.*;
-import com.ai.baby.sqlagent.schema.domain.QueryContext;
-import com.ai.baby.sqlagent.schema.service.QueryContextBuilder;
-import com.ai.baby.sqlagent.sql.service.SqlGenerator;
-import lombok.val;
 import org.springframework.stereotype.Service;
 
 import com.ai.baby.sqlagent.analyzer.IntentAnalyzer;
-import com.ai.baby.sqlagent.schema.domain.SchemaInfo;
+import com.ai.baby.sqlagent.domain.AgentExecutionContext;
+import com.ai.baby.sqlagent.domain.AgentExecutionRecord;
+import com.ai.baby.sqlagent.domain.AgentResponse;
+import com.ai.baby.sqlagent.domain.AgentStage;
+import com.ai.baby.sqlagent.domain.GuardResult;
+import com.ai.baby.sqlagent.domain.IntentResult;
+import com.ai.baby.sqlagent.domain.QueryResult;
+import com.ai.baby.sqlagent.domain.ReflectionDecision;
+import com.ai.baby.sqlagent.domain.SqlErrorType;
+import com.ai.baby.sqlagent.domain.SqlGenerationResult;
 import com.ai.baby.sqlagent.exception.SqlBlockedException;
 import com.ai.baby.sqlagent.exception.SqlExecutionException;
 import com.ai.baby.sqlagent.guard.SqlGuard;
-import com.ai.baby.sqlagent.schema.service.SchemaRetriever;
+import com.ai.baby.sqlagent.schema.domain.QueryContext;
+import com.ai.baby.sqlagent.schema.service.QueryContextBuilder;
+import com.ai.baby.sqlagent.sql.service.SqlGenerator;
 import com.ai.baby.sqlagent.tool.DatabaseTool;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * SQL智能体服务
+ * SQL智能体服务，主编排管线的唯一入口。
  */
 @Slf4j
 @Service
@@ -31,19 +36,12 @@ import lombok.extern.slf4j.Slf4j;
 public class SqlAgentService {
 
     private final IntentAnalyzer intentAnalyzer;
-
     private final QueryContextBuilder queryContextBuilder;
-
     private final SqlGenerator sqlGenerator;
-
     private final SqlGuard sqlGuard;
-
     private final DatabaseTool databaseTool;
-
     private final AgentExecutionAuditService agentExecutionAuditService;
-
     private final ReflectionService reflectionService;
-
     private final SqlErrorClassifier sqlErrorClassifier;
 
     private static final int MAX_RETRIES = 2;
@@ -60,341 +58,210 @@ public class SqlAgentService {
                 .build();
 
         try {
-
             analyzeIntent(context);
-
             retrieveSchema(context);
-
             generateSql(context);
-
-            // 自动执行 + 重试
             executeWithRetry(context);
 
             AgentResponse response = buildResponse(context);
-
             context.setStage(AgentStage.COMPLETED);
 
             long totalTime = System.currentTimeMillis() - start;
-
-            AgentExecutionRecord record = buildExecutionRecord(context, totalTime);
-
-            agentExecutionAuditService.record(record);
+            agentExecutionAuditService.record(buildExecutionRecord(context, totalTime));
 
             return response;
         } catch (Exception e) {
+            log.error("SQL Agent 执行异常", e);
+            context.setStage(AgentStage.FAILED);
+            context.setError(e.getMessage());
 
-            log.error("调用大模型异常", e);
-            context.setStage(
-                    AgentStage.FAILED);
+            long totalTime = System.currentTimeMillis() - start;
+            agentExecutionAuditService.record(buildExecutionRecord(context, totalTime));
 
-            context.setError(
-                    e.getMessage());
-
-            long totalTime = System.currentTimeMillis()
-                    - start;
-
-            AgentExecutionRecord record = buildExecutionRecord(
-                    context,
-                    totalTime);
-
-            agentExecutionAuditService.record(record);
-
-            return buildErrorResponse(
-                    context,
-                    e);
+            return buildErrorResponse(context, e);
         }
     }
 
     private void executeWithRetry(AgentExecutionContext context) {
 
         while (true) {
-
             try {
-
-                // ====================
-                // 1. Guard
-                // ====================
                 guardSql(context);
-
-                // ====================
-                // 2. Execute
-                // ====================
                 executeSql(context);
-
-                // 成功
                 return;
             } catch (SqlBlockedException e) {
-                // Guard拦截
                 throw e;
             } catch (SqlExecutionException e) {
 
-                // 1. 保存本次 SQL 执行错误
                 String error = e.getMessage();
                 context.setError(error);
 
-                // 2. 对本次错误分类
-                SqlErrorType errorType =
-                        sqlErrorClassifier.classify(error);
-
+                SqlErrorType errorType = sqlErrorClassifier.classify(error);
                 context.setLastErrorType(errorType);
 
-                log.warn(
-                        "[SQL-AGENT][{}] SQL execution failed: type={}, error={}",
-                        context.getExecutionId(),
-                        errorType,
-                        error
-                );
+                log.warn("[SQL-AGENT][{}] SQL execution failed: type={}, error={}",
+                        context.getExecutionId(), errorType, error);
 
-                // 3. Reflection 决定是否重试
-                ReflectionDecision decision =
-                        reflectionService.reflect(context);
+                ReflectionDecision decision = reflectionService.reflect(context);
 
-                log.info(
-                        "[SQL-AGENT][{}] Reflection: shouldRetry={}, reason={}",
-                        context.getExecutionId(),
-                        decision.isShouldRetry(),
-                        decision.getReason()
-                );
+                log.info("[SQL-AGENT][{}] Reflection: shouldRetry={}, reason={}",
+                        context.getExecutionId(), decision.isShouldRetry(), decision.getReason());
 
-                // 4. Reflection 不建议重试，直接终止
                 if (!decision.isShouldRetry()) {
                     throw e;
                 }
 
-                // 5. 达到重试上限，终止
                 if (context.getRetryCount() >= MAX_RETRIES) {
-                    log.warn(
-                            "[SQL-AGENT][{}] Retry limit reached: {}",
-                            context.getExecutionId(),
-                            MAX_RETRIES
-                    );
+                    log.warn("[SQL-AGENT][{}] Retry limit reached: {}",
+                            context.getExecutionId(), MAX_RETRIES);
                     throw e;
                 }
 
-                // 6. 增加重试次数并重新生成 SQL
                 context.setRetryCount(context.getRetryCount() + 1);
-
-                // TODO 重试待完成
-//                regenerateSql(context, decision.getFeedback());
+                regenerateSql(context, decision.getFeedback());
             }
         }
     }
 
-    /**
-     * 分析用户意图
-     */
     private void analyzeIntent(AgentExecutionContext context) {
 
         logStage(context, "analyze intent");
-
         context.setStage(AgentStage.INTENT);
 
         IntentResult intent = intentAnalyzer.analyze(context.getQuestion());
-
         context.setIntent(intent);
 
-        logStage(context, "Intent = " + intent.getIntentType() + ", confidence=" + intent.getConfidence());
+        logStage(context, "Intent = " + intent.getIntentType()
+                + ", confidence=" + intent.getConfidence());
     }
 
-    /**
-     * 检索数据库模式
-     */
     private void retrieveSchema(AgentExecutionContext context) {
 
         context.setStage(AgentStage.SCHEMA);
         logStage(context, "开始Schema检索");
+
         QueryContext queryContext = queryContextBuilder.build(context.getQuestion());
         context.setQueryContext(queryContext);
 
         logStage(context, "Schema数量=" + queryContext.getSchemas().size());
     }
 
-    private void generateSql(
-            AgentExecutionContext context) {
+    private void generateSql(AgentExecutionContext context) {
 
-        context.setStage(
-                AgentStage.SQL_GENERATION);
+        context.setStage(AgentStage.SQL_GENERATION);
 
         SqlGenerationResult result = sqlGenerator.generate(context.getQueryContext());
-
         context.setSqlResult(result);
 
-        logStage(context,"生成SQL: " + result.getSql());
+        logStage(context, "生成SQL: " + result.getSql());
+    }
+
+    private void regenerateSql(AgentExecutionContext context, String feedback) {
+
+        context.setStage(AgentStage.SQL_GENERATION);
+        logStage(context, "重新生成SQL, retryCount=" + context.getRetryCount());
+
+        QueryContext queryContext = context.getQueryContext();
+        queryContext.setFeedback(feedback);
+
+        SqlGenerationResult result = sqlGenerator.generate(queryContext);
+        context.setSqlResult(result);
+
+        logStage(context, "重试生成SQL: " + result.getSql());
     }
 
     private void guardSql(AgentExecutionContext context) {
 
         context.setStage(AgentStage.SQL_GUARD);
-        val sqlResult = context.getSqlResult();
 
-        GuardResult result = sqlGuard.check(sqlResult.getSql());
-
+        GuardResult result = sqlGuard.check(context.getSqlResult().getSql());
         context.setGuardResult(result);
 
-        logStage(context,
-                "Guard: allowed="
-                + result.isAllowed()
-                        + ", risk="
-                        + result.getRisk());
+        logStage(context, "Guard: allowed=" + result.isAllowed()
+                + ", risk=" + result.getRisk());
 
         if (!result.isAllowed()) {
-
-            throw new SqlBlockedException(
-                    result.getReason());
+            throw new SqlBlockedException(result.getReason());
         }
     }
 
-    private void executeSql(
-            AgentExecutionContext context) {
+    private void executeSql(AgentExecutionContext context) {
 
-        context.setStage(
-                AgentStage.SQL_EXECUTION);
-        val sqlResult = context.getSqlResult();
-        QueryResult result = databaseTool.executeSql(
-                sqlResult.getSql());
+        context.setStage(AgentStage.SQL_EXECUTION);
 
+        QueryResult result = databaseTool.executeSql(context.getSqlResult().getSql());
         context.setQueryResult(result);
 
-        logStage(
-                context,
-                "SQL执行完成，rows="
-                        + (result.getData() == null
-                        ? 0
-                        : result.getData().size())
-                        + ", cost="
-                        + result.getCostMs()
-                        + "ms");
+        int rows = result.getData() == null ? 0 : result.getData().size();
+        logStage(context, "SQL执行完成，rows=" + rows + ", cost=" + result.getCostMs() + "ms");
 
         if (!result.isSuccess()) {
-
-            throw new SqlExecutionException(
-                    result.getError());
+            throw new SqlExecutionException(result.getError());
         }
     }
 
-    private AgentResponse buildResponse(
-            AgentExecutionContext context) {
+    private AgentResponse buildResponse(AgentExecutionContext context) {
 
-        context.setStage(
-                AgentStage.RESPONSE);
+        context.setStage(AgentStage.RESPONSE);
 
+        SqlGenerationResult sqlResult = context.getSqlResult();
+        GuardResult guard = context.getGuardResult();
         QueryResult queryResult = context.getQueryResult();
 
         return AgentResponse.builder()
-                .question(
-                        context.getQuestion())
-                .intent(
-                        context.getIntent())
-                .sql(
-                        context.getSqlResult()
-                                .getSql())
-                .explanation(
-                        context.getSqlResult()
-                                .getExplanation())
-                .risk(
-                        context.getGuardResult()
-                                .getRisk())
-                .data(
-                        queryResult.getData())
+                .question(context.getQuestion())
+                .intent(context.getIntent())
+                .sql(sqlResult.getSql())
+                .explanation(sqlResult.getExplanation())
+                .risk(guard.getRisk())
+                .data(queryResult.getData())
                 .success(true)
                 .build();
     }
 
-    private AgentResponse buildErrorResponse(
-            AgentExecutionContext context,
-            Exception e) {
+    private AgentResponse buildErrorResponse(AgentExecutionContext context, Exception e) {
+
+        SqlGenerationResult sqlResult = context.getSqlResult();
+        GuardResult guard = context.getGuardResult();
 
         return AgentResponse.builder()
-                .question(
-                        context.getQuestion())
-                .intent(
-                        context.getIntent())
-                .sql(
-                        context.getSqlResult()
-                                .getSql())
-                .risk(
-                        context.getGuardResult() == null
-                                ? null
-                                : context.getGuardResult()
-                                .getRisk())
+                .question(context.getQuestion())
+                .intent(context.getIntent())
+                .sql(sqlResult == null ? null : sqlResult.getSql())
+                .risk(guard == null ? null : guard.getRisk())
                 .success(false)
-                .error(
-                        e.getMessage())
+                .error(e.getMessage())
                 .build();
     }
 
-    private void logStage(
-            AgentExecutionContext context,
-            String message) {
+    private void logStage(AgentExecutionContext context, String message) {
 
-        log.info(
-                "[SQL-AGENT][{}][{}] {}",
-                context.getExecutionId(),
-                context.getStage(),
-                message);
+        log.info("[SQL-AGENT][{}][{}] {}",
+                context.getExecutionId(), context.getStage(), message);
     }
 
-
-    private AgentExecutionRecord buildExecutionRecord(
-            AgentExecutionContext context,
-            long totalTimeMs) {
+    private AgentExecutionRecord buildExecutionRecord(AgentExecutionContext context, long totalTimeMs) {
 
         IntentResult intent = context.getIntent();
         GuardResult guard = context.getGuardResult();
         QueryResult query = context.getQueryResult();
+        SqlGenerationResult sqlResult = context.getSqlResult();
 
         return AgentExecutionRecord.builder()
                 .executionId(context.getExecutionId())
                 .question(context.getQuestion())
-
-                // 暂时保留原有取值，下一步核对 IntentResult 后再修正
-                .intent(
-                        intent == null || intent.getIntentType() == null
-                                ? null
-                                : intent.getIntentType().name()
-                )
-                .confidence(
-                        intent == null
-                                ? null
-                                : intent.getConfidence()
-                )
-
-                .sql(context.getSqlResult()
-                        .getSql())
-                .risk(
-                        guard == null
-                                ? null
-                                : guard.getRisk()
-                )
-                .guardAllowed(
-                        guard == null
-                                ? null
-                                : guard.isAllowed()
-                )
-                .guardReason(
-                        guard == null
-                                ? null
-                                : guard.getReason()
-                )
-
-                // 返回结果的行数，不代表数据库扫描行数
-                .rowCount(
-                        query == null || query.getData() == null
-                                ? 0
-                                : query.getData().size()
-                )
-                .executionTimeMs(
-                        query == null
-                                ? null
-                                : query.getCostMs()
-                )
+                .intent(intent == null || intent.getIntentType() == null
+                        ? null : intent.getIntentType().name())
+                .confidence(intent == null ? null : intent.getConfidence())
+                .sql(sqlResult == null ? null : sqlResult.getSql())
+                .risk(guard == null ? null : guard.getRisk())
+                .guardAllowed(guard == null ? null : guard.isAllowed())
+                .guardReason(guard == null ? null : guard.getReason())
+                .rowCount(query == null || query.getData() == null ? 0 : query.getData().size())
+                .executionTimeMs(query == null ? null : query.getCostMs())
                 .totalTimeMs(totalTimeMs)
-
-                .success(
-                        context.getStage() == AgentStage.COMPLETED
-                                && query != null
-                                && query.isSuccess()
-                )
+                .success(context.getStage() == AgentStage.COMPLETED
+                        && query != null && query.isSuccess())
                 .stage(context.getStage())
                 .error(context.getError())
                 .createTime(LocalDateTime.now())

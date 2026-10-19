@@ -5,7 +5,7 @@ package com.ai.baby.sqlagent.domain;
  */
 public enum IntentType {
 
-  /**
+    /**
      * SQL查询
      */
     SQL_QUERY,

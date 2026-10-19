@@ -1,17 +1,19 @@
 package com.ai.baby.sqlagent.test;
 
-import com.ai.baby.sqlagent.domain.AgentExecutionContext;
-import com.ai.baby.sqlagent.domain.ReflectionDecision;
-import com.ai.baby.sqlagent.domain.SqlErrorType;
-import com.ai.baby.sqlagent.service.ReflectionService;
-import com.ai.baby.sqlagent.service.SqlErrorClassifier;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import static org.junit.jupiter.api.Assertions.*;
+import com.ai.baby.sqlagent.domain.AgentExecutionContext;
+import com.ai.baby.sqlagent.domain.ReflectionDecision;
+import com.ai.baby.sqlagent.domain.SqlErrorType;
+import com.ai.baby.sqlagent.service.ReflectionService;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SpringBootTest
 class DefaultReflectionServiceTest {
@@ -23,11 +25,9 @@ class DefaultReflectionServiceTest {
     void shouldRetryWhenColumnNotFound() {
         AgentExecutionContext context = buildContext(
                 SqlErrorType.COLUMN_NOT_FOUND,
-                "Unknown column 'e.salary2' in 'field list'"
-        );
+                "Unknown column 'e.salary2' in 'field list'");
 
-        ReflectionDecision decision =
-                reflectionService.reflect(context);
+        ReflectionDecision decision = reflectionService.reflect(context);
 
         assertTrue(decision.isShouldRetry());
         assertNotNull(decision.getReason());
@@ -40,11 +40,9 @@ class DefaultReflectionServiceTest {
     void shouldRetryWhenTableNotFound() {
         AgentExecutionContext context = buildContext(
                 SqlErrorType.TABLE_NOT_FOUND,
-                "Table 'test.employee2' doesn't exist"
-        );
+                "Table 'test.employee2' doesn't exist");
 
-        ReflectionDecision decision =
-                reflectionService.reflect(context);
+        ReflectionDecision decision = reflectionService.reflect(context);
 
         assertTrue(decision.isShouldRetry());
         assertNotNull(decision.getFeedback());
@@ -55,11 +53,9 @@ class DefaultReflectionServiceTest {
     void shouldRetryWhenSqlSyntaxError() {
         AgentExecutionContext context = buildContext(
                 SqlErrorType.SYNTAX_ERROR,
-                "You have an error in your SQL syntax"
-        );
+                "You have an error in your SQL syntax");
 
-        ReflectionDecision decision =
-                reflectionService.reflect(context);
+        ReflectionDecision decision = reflectionService.reflect(context);
 
         assertTrue(decision.isShouldRetry());
         assertNotNull(decision.getFeedback());
@@ -68,45 +64,28 @@ class DefaultReflectionServiceTest {
 
     @Test
     void shouldNotRetryWhenConnectionError() {
-        assertNotRetry(
-                SqlErrorType.CONNECTION_ERROR,
-                "Connection refused"
-        );
+        assertNotRetry(SqlErrorType.CONNECTION_ERROR, "Connection refused");
     }
 
     @Test
     void shouldNotRetryWhenPermissionError() {
-        assertNotRetry(
-                SqlErrorType.PERMISSION_ERROR,
-                "Access denied for user"
-        );
+        assertNotRetry(SqlErrorType.PERMISSION_ERROR, "Access denied for user");
     }
 
     @Test
     void shouldNotRetryWhenTimeout() {
-        assertNotRetry(
-                SqlErrorType.TIMEOUT,
-                "Query timed out"
-        );
+        assertNotRetry(SqlErrorType.TIMEOUT, "Query timed out");
     }
 
     @Test
     void shouldNotRetryWhenErrorTypeIsUnknown() {
-        assertNotRetry(
-                SqlErrorType.UNKNOWN,
-                "Unexpected database error"
-        );
+        assertNotRetry(SqlErrorType.UNKNOWN, "Unexpected database error");
     }
 
     @Test
     void shouldNotRetryWhenErrorTypeIsNull() {
-        AgentExecutionContext context = buildContext(
-                null,
-                "Some SQL error"
-        );
-
-        ReflectionDecision decision =
-                reflectionService.reflect(context);
+        AgentExecutionContext context = buildContext(null, "Some SQL error");
+        ReflectionDecision decision = reflectionService.reflect(context);
 
         assertFalse(decision.isShouldRetry());
         assertNotNull(decision.getReason());
@@ -115,31 +94,19 @@ class DefaultReflectionServiceTest {
 
     @Test
     void shouldRejectNullContext() {
-        assertThrows(
-                IllegalArgumentException.class,
-                () -> reflectionService.reflect(null)
-        );
+        assertThrows(IllegalArgumentException.class, () -> reflectionService.reflect(null));
     }
 
-    private void assertNotRetry(
-            SqlErrorType errorType,
-            String error) {
-
-        AgentExecutionContext context =
-                buildContext(errorType, error);
-
-        ReflectionDecision decision =
-                reflectionService.reflect(context);
+    private void assertNotRetry(SqlErrorType errorType, String error) {
+        AgentExecutionContext context = buildContext(errorType, error);
+        ReflectionDecision decision = reflectionService.reflect(context);
 
         assertFalse(decision.isShouldRetry());
         assertNotNull(decision.getReason());
         assertNull(decision.getFeedback());
     }
 
-    private AgentExecutionContext buildContext(
-            SqlErrorType errorType,
-            String error) {
-
+    private AgentExecutionContext buildContext(SqlErrorType errorType, String error) {
         return AgentExecutionContext.builder()
                 .executionId("test-execution")
                 .question("查询研发部的平均工资")

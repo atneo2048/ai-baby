@@ -27,12 +27,7 @@ public interface SchemaService {
     List<SchemaRelation> loadRelations();
 
     /**
-     * 获取指定表相关关系
-     */
-    List<SchemaRelation> getRelations(String tableName);
-
-    /**
-     * 强制刷新 Schema
+     * 强制刷新 Schema（清缓存并重新从数据库加载）
      */
     List<SchemaInfo> refresh();
 }

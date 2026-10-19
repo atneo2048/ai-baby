@@ -19,18 +19,7 @@ public class IntentResult {
     private String question;
 
     /**
-     * 判断原因
-     */
-    private String reason;
-
-    /**
      * 置信度
      */
     private double confidence;
-
-    /**
-     * 是否来自AI
-     */
-    private boolean aiAnalysis;
-
 }

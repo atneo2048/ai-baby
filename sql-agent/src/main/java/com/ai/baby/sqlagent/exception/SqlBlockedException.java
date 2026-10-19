@@ -1,11 +1,8 @@
 package com.ai.baby.sqlagent.exception;
 
-public class SqlBlockedException
-        extends RuntimeException {
+public class SqlBlockedException extends RuntimeException {
 
-    public SqlBlockedException(
-            String message) {
-
+    public SqlBlockedException(String message) {
         super(message);
     }
 }

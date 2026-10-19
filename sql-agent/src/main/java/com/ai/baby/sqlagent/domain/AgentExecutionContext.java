@@ -1,13 +1,10 @@
 package com.ai.baby.sqlagent.domain;
 
 import com.ai.baby.sqlagent.schema.domain.QueryContext;
-import com.ai.baby.sqlagent.schema.domain.SchemaInfo;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.util.List;
 
 @Data
 @Builder
@@ -31,12 +28,7 @@ public class AgentExecutionContext {
     private IntentResult intent;
 
     /**
-     * Schema
-     */
-    private List<SchemaInfo> schemas;
-
-    /**
-     * Agent上下文
+     * Agent上下文（含 Schema、实体、数据值、关系）
      */
     private QueryContext queryContext;
 

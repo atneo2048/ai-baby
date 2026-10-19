@@ -9,7 +9,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * 意图分析器
+ * 意图分析器：规则优先，AI 兜底。
  */
 @Slf4j
 @Service
@@ -24,7 +24,6 @@ public class IntentAnalyzer {
     public IntentResult analyze(String question) {
 
         IntentResult result = ruleAnalyze(question);
-
         if (result != null) {
             return result;
         }
@@ -34,6 +33,7 @@ public class IntentAnalyzer {
         } catch (JsonProcessingException e) {
             log.error("AI意图分析器解析JSON失败", e);
         }
+
         return null;
     }
 
@@ -46,19 +46,16 @@ public class IntentAnalyzer {
 
         if (containsDangerous(q)) {
             result.setIntentType(IntentType.DANGEROUS);
-            result.setReason("包含危险操作");
             return result;
         }
 
         if (containsSchema(q)) {
             result.setIntentType(IntentType.SCHEMA_QUERY);
-            result.setReason("查询数据库结构");
             return result;
         }
 
         if (containsSql(q)) {
             result.setIntentType(IntentType.SQL_QUERY);
-            result.setReason("数据库查询");
             return result;
         }
 
@@ -73,16 +70,13 @@ public class IntentAnalyzer {
                 || question.contains("人数")
                 || question.contains("部门")
                 || question.contains("订单");
-
     }
 
     private boolean containsSchema(String question) {
-
         return question.contains("有哪些表")
                 || question.contains("字段")
                 || question.contains("schema")
                 || question.contains("数据库结构");
-
     }
 
     private boolean containsDangerous(String question) {
